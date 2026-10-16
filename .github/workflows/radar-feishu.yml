@@ -1,28 +1,29 @@
 name: New-term radar
 
 # Two schedules, one state:
-#   sources  every 8 hours: X and Hugging Face, where a name is said first. Posts a
+#   sources  three times a day: X and Hugging Face, where a name is said first. Posts a
 #            report only when there is a new name.
 #   daily    once a day: everything else, the review of leads from 14 days ago, and the
 #            source leads of the last day.
 #
+# The minutes are off the hour on purpose. A Feishu custom bot throttles at busy whole
+# and half hours (error 11232), so the original 0 */8 slot is exactly where you least
+# want to land.
+#
 # Off until you opt in: set the repository variable RADAR_ENABLED to "true"
 # (Settings > Secrets and variables > Actions > Variables), add the secret AISA_API_KEY,
 # and commit your config.json (remove it from .gitignore first; it holds no secrets).
-# Optional secrets: GOANYAPI_API_KEY (related queries in the keyword table),
-# RESEND_API_KEY, EMAIL_FROM, RADAR_EMAIL_TO (mail the reports),
-# GSC_TOKEN_JSON (the Search Console signal).
+# Optional secrets: GOANYAPI_API_KEY, RESEND_API_KEY, EMAIL_FROM, RADAR_EMAIL_TO,
+# GSC_TOKEN_JSON, and for the Feishu step FEISHU_WEBHOOK_URL plus FEISHU_SECRET.
 #
 # State (state/radar.db and the snapshots) lives in the Actions cache: one entry per
-# run, restored by prefix, so the repository does not grow. A missing cache only means
-# the next run builds new snapshots and reports nothing that day; the leads database
-# would start over, so download the "radar-state" artifact now and then if you care
-# about the review's history.
+# run, restored by prefix, so the repository does not grow. Download the "radar-state"
+# artifact now and then if you care about the review's history.
 
 on:
   schedule:
-    - cron: "0 0,8,16 * * *"   # sources
-    - cron: "30 1 * * *"       # daily
+    - cron: "17 0,8,16 * * *"   # sources
+    - cron: "43 1 * * *"        # daily
   workflow_dispatch:
     inputs:
       command:
@@ -42,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      COMMAND: ${{ github.event.inputs.command || (github.event.schedule == '30 1 * * *' && 'daily' || 'sources') }}
+      COMMAND: ${{ github.event.inputs.command || (github.event.schedule == '43 1 * * *' && 'daily' || 'sources') }}
     steps:
       - uses: actions/checkout@v4
 
@@ -60,6 +61,7 @@ jobs:
           restore-keys: radar-state-
 
       - name: Run the radar
+        id: run
         env:
           AISA_API_KEY: ${{ secrets.AISA_API_KEY }}
           GOANYAPI_API_KEY: ${{ secrets.GOANYAPI_API_KEY }}
@@ -75,6 +77,18 @@ jobs:
             python -m radar sources --out report.md ${RADAR_EMAIL_TO:+--mail}
           fi
           if [ -f report.md ]; then cat report.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      # A digest, not the whole file: a full report is past the bot's 20 KB body limit.
+      # Card first (it draws the tables), falling back to text inside the script.
+      - name: Push to Feishu
+        if: always() && hashFiles('report.md') != ''
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+          FEISHU_SECRET: ${{ secrets.FEISHU_SECRET }}
+          RADAR_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python3 scripts/feishu_notify.py report.md --max-rows 8 \
+            || echo "::warning::feishu push failed; the report is still in the run summary"
 
       - name: Save the state
         if: always()

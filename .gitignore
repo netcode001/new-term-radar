@@ -1,4 +1,3 @@
-config.json
 state/
 gsc_token.json
 gsc_client.json
@@ -9,6 +8,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 .env
+.feishu.env
+.env.feishu
 *.egg-info/
 build/
 dist/

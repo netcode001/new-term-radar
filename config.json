@@ -1,0 +1,55 @@
+{
+  "_comment_cost": "One run of `daily` a day, no separate sources job: about $7 a month, not the $15 of the example (35 accounts read three times a day). Add the sources job later if names keep arriving late.",
+  "_comment_to_edit": "If you want the report in Chinese set lang to zh below. known_terms is the list of words you already have a page for: fill it in for jev-ai.live, or every hit stays unmarked.",
+
+  "lang": "zh",
+
+  "x_accounts": {
+    "labs": [
+      "AnthropicAI", "OpenAI", "OpenAIDevs", "GoogleDeepMind", "GoogleAIStudio",
+      "Alibaba_Qwen", "deepseek_ai", "Kimi_Moonshot", "MiniMax__AI", "Zai_org",
+      "xai", "AIatMeta", "MistralAI", "huggingface", "cursor_ai",
+      "Kling_ai", "runwayml", "LumaLabsAI", "Hailuo_AI", "higgsfield_ai",
+      "Alibaba_Wan", "midjourney"
+    ],
+    "bloggers": ["dotey", "op7418", "_akhaliq", "swyx", "karpathy", "rowancheung"]
+  },
+
+  "sitemaps": {
+    "glama":          {"index": "https://glama.ai/sitemap.xml", "shards": "/(mcp-servers|mcp-remote-servers)/\\d+\\.xml$|blog-posts", "pause": 2},
+    "mcp.so":         {"index": "https://mcp.so/sitemap.xml", "shards": "section=(servers|agents|cli|clients|posts)\\b", "pause": 2},
+    "lobehub-mcp":    {"index": "https://lobehub.com/sitemap/mcp.xml", "pause": 5, "strip_locale": true},
+    "lobehub-skills": {"index": "https://lobehub.com/sitemap/skills.xml", "pause": 5, "strip_locale": true},
+    "toolify":        {"index": "https://www.toolify.ai/sitemap.xml", "shards": "sitemap_tools_(1[6-9]|[2-9]\\d)\\.xml$", "pause": 5, "strip_locale": true},
+    "aixploria":      {"index": "https://www.aixploria.com/sitemap.xml", "shards": "sitemap-posttype-post\\.20(2[6-9]|[3-9]\\d)\\d{2}\\.xml$", "pause": 2},
+    "ai-bot.cn":      {"index": "https://ai-bot.cn/sitemap.xml", "pause": 3},
+    "opentools":      {"index": "https://opentools.ai/sitemap.xml", "shards": "/(tools|llms|mcp)-sitemap\\.xml$", "pause": 2},
+    "dang":           {"index": "https://dang.ai/sitemap.xml", "pause": 2},
+    "clipfly":        {"index": "https://www.clipfly.ai/sitemaps/en.xml", "pause": 2, "strip_locale": true},
+    "aitoptools":     {"index": "https://aitoptools.com/sitemap.xml", "pause": 2},
+    "futurepedia":    {"index": "https://www.futurepedia.io/sitemap_tools.xml", "pause": 2}
+  },
+
+  "topics": {
+    "AI video": "\\bvideos?\\b|animat|avatar|lip ?sync|seedance|\\bveo\\b|\\bsora\\b|kling|hailuo|remotion|hyperframes",
+    "AI image": "\\bimage\\b|\\bphoto|headshot|avatar\\b|diffusion|lora|inpainting",
+    "agent & MCP": "\\bagent\\b|\\bmcp\\b|\\bskill\\b|cowork|tool ?use|\\bcli\\b",
+    "AI coding": "\\bcoding\\b|copilot|cursor|vibe|refactor|\\bide\\b"
+  },
+
+  "known_terms": ["claude code", "remotion", "mcp"],
+  "stop_words": [],
+
+  "judge": {"model": "gpt-4.1-mini", "min_score": 0.5},
+  "breakout": {"window_days": 14, "min_stars": 300, "velocity_min": 200, "delta_min": 400},
+  "new_sites": {"queries": {"ai": "%ai%", "tool": "%tool%"}, "weekday": 0},
+  "revenue": {"weekday": 0, "pages_growth": 3, "pages_new": 3, "min_revenue_usd": 500, "category": "", "max_leads": 10},
+  "competition": {"max_rows": 8, "weak_dr": 30, "location_code": 2840},
+  "review": {"after_days": 14, "per_day": 5},
+
+  "_comment_usecases": "per_day 3 instead of 5: three names a day is enough to act on, and it halves this part of the bill. Raise it when a name you care about does not get read.",
+  "usecases": {"per_day": 3, "model": "claude-sonnet-4-6", "benchmark": "gpts", "min_volume": 50, "min_daily": 300, "related": true, "related_geo": "US", "country_trends": true, "country_min_volume": 1000, "country_max": 8},
+
+  "_comment_gsc": "Fill this in after python scripts/gsc_auth.py gsc_client.json has run once on your machine, then upload gsc_token.json as the GSC_TOKEN_JSON secret. Left empty here so the run does not fail.",
+  "gsc": {}
+}
